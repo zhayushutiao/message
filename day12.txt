@@ -1,0 +1,23 @@
+message案例
+    项目结构:
+    node_modules/
+    model/ --- 与数据库的操作
+        | -- db.js  处理数据的增删改查
+        | -- models.js 封装model对象
+                Schema: {username,message,date}  
+    public/ --- 存放公共文件,静态资源文件
+        | -- js/
+        | -- css/
+        | -- img/
+    views/
+        | -- index.ejs 首页
+    router/
+        | -- message.js 处理留言相关的路由
+    app.js --- 程序启动文件
+    package.json --- 配置文件(cnpm init)
+
+    模块:
+        express
+        ejs
+        mongoose
+        silly-datetime
