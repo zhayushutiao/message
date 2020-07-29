@@ -1,21 +1,17 @@
+// 创建message1对应的model对象
 const mongoose = require('mongoose');
 // 创建messSchema
-var messSchema = new mongoose.Schema({
+var msgSchema = new mongoose.Schema({
     username:String,
     message:String,
     date:String
+},{
+    collection:'message'//指定集合名称
 })
 // 创建对应的model
-var Mess = mongoose.model('mess',messSchema);
+var Mess = mongoose.model('mess',msgSchema);
 
-// 连接数据库
-const url = 'mongodb://localhost:27017/web';
-const opt = {
-    useNewUrlParser:true,
-    useUnifiedTopology:true
-};
-mongoose.connect(url,opt);
 
 module.exports = {
-    Mess:Mess
+    Message:Mess
 }

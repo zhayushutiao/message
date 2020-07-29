@@ -7,8 +7,8 @@
 </head>
 <body>
     <form action="/mess/edit" method="POST">
-        用户名: <input type="text" name="username"><br>
-        留言: <textarea name="message" cols="30" rows="10"></textarea><br>
+        用户名: <input type="text" name="username" value="<%= msg[0].username %>"><br>
+        留言: <textarea name="message"></textarea><br>
         <input type="submit" value="提交">
     </form>
 </body>

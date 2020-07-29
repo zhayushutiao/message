@@ -3,25 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>内部小论坛</title>
 </head>
+<style>
+    .out{border: 1px solid red;background: lightgreen;}
+</style>
 <body>
     <div>
         <form action="/mess/tijiao" method="POST">
             用户名: <input type="text" name="username"><br>
-            留言: <textarea name="message" cols="30" rows="10"></textarea><br>
+            留言: <textarea name="message"></textarea><br>
             <input type="submit" value="提交">
         </form>
         <hr>
         <div>
-            <div>
-                <% for(var i=0;i<messes.length;i++){ %>
-                <p><%= messes[i].username %><span>说:</span></p>
-                <p><%= messes[i].message %></p>
-                <p><%= messes[i].date %></p>
-                <p><a href="/mess/edit">编辑</a><a href="/mess/delete?username=<%= messes[i].username %>">删除</a></p>
-                <% } %>
+            <% for(var i=0;i<msg.length;i++){ %>
+            <div class="out">
+                <p><b><%= msg[i].username %></b><span>说:</span></p>
+                <p><%= msg[i].message %></p>
+                <p><%= msg[i].date %></p>
+                <p>
+                    <a href="/mess/edit?username=<%= msg[i].username %>">编辑</a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a href="/mess/delete?username=<%= msg[i].username %>">删除</a>
+                </p>
             </div>
+            <% } %>
         </div>
     </div>
 </body>
