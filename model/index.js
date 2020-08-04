@@ -110,7 +110,16 @@ function find(model,filter,opt,callback){
     })
 }
 
-
+/**
+ * @method 统计所有数据的条数
+ * @param {*} model 
+ * @param {*} callback 
+ */
+function total(model,callback){
+    model.countDocuments(function(err,count){
+        callback(err,count);
+    })
+}
 
 
 module.exports = {
@@ -118,5 +127,6 @@ module.exports = {
     add,
     del,
     modify,
-    find
+    find,
+    total
 }

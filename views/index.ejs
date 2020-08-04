@@ -4,32 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>内部小论坛</title>
+    <link rel="stylesheet" href="/css/bootstrap.css">
 </head>
 <style>
-    .out{border: 1px solid red;background: lightgreen;}
+    .out{border: 1px solid red;display: flex;}
+    .img{margin-right: 10px;flex-grow: 0;}
+    .msg{flex-grow: 1;}
+    .pager>.active>a{background: skyblue;}
+    .user{height: 150px;}
+    .avatar,.nickname{display: inline-block;}
+    .avatar{border-radius: 50%;overflow: hidden;}  
 </style>
 <body>
     <div>
         <form action="/mess/tijiao" method="POST">
-            用户名: <input type="text" name="username"><br>
+            <div class="pull-right">
+                <a href="/user/logout">退出登录</a>
+                <a href="/user/center">个人中心</a>
+            </div>
+            <div class="user">
+                <% for(var i=0;i<users.length;i++){ %>
+                    <% if(username==users[i].username){ %>
+                        <div class="avatar">
+                            <img src="<%= users[i].avatar %>" height="100">
+                        </div>
+                        <div class="nickname">
+                            <h2><%= users[i].nickname %></h2>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
             留言: <textarea name="message"></textarea><br>
             <input type="submit" value="提交">
         </form>
         <hr>
+        <ul class="pager">
+            <li class="<%= current==1?'disabled':'' %>">
+                <a href="/mess?page=<%= current==1?1:current-1 %>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <% for(var i=0;i<pages;i++){ %>
+            <li class="<%= current==i+1?'active':'' %>">
+                <a href="/mess?page=<%= i+1 %>">
+                    <%= i+1 %>
+                </a>
+            </li>
+            <% } %>
+            <li class="<%= current==pages?'disabled':'' %>">
+              <a href="/mess?page=<%= current==pages?current:current+1 %>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+        </ul>
         <div>
             <% for(var i=0;i<msg.length;i++){ %>
-            <div class="out">
-                <p><b><%= msg[i].username %></b><span>说:</span></p>
-                <p><%= msg[i].message %></p>
-                <p><%= msg[i].date %></p>
-                <p>
-                    <a href="/mess/edit?username=<%= msg[i].username %>">编辑</a>
-                    &nbsp;&nbsp;&nbsp;
-                    <a href="/mess/delete?username=<%= msg[i].username %>">删除</a>
-                </p>
-            </div>
+                <% for(var j=0;j<users.length;j++){ %>
+                    <% if(msg[i].username==users[j].username){ %>
+                        <div class="out">
+                            <div class="img">
+                                <img src="<%= users[j].avatar %>" width="75">
+                            </div>
+                            <div class="msg">
+                                <p><b><%= users[j].nickname %></b><span>说:</span></p>
+                                <p><%= msg[i].message %></p>
+                                <p><%= msg[i].date %></p>
+                                <% if(username==users[j].username){ %>
+                                    <p>
+                                        <a href="javascript:;" onclick="edit(this)">编辑</a>
+                                        &nbsp;&nbsp;&nbsp;
+                                        <a href="javascript:;" onclick="del('<%= msg[i]._id %>')">删除</a>
+                                    </p>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } %>
+                <% } %>
             <% } %>
+            <ul class="pager">
+                <li><a href="#">Previous</a></li>
+                <li><a href="#">Next</a></li>
+            </ul>
         </div>
     </div>
+    <script src="/js/jquery-1.9.1.min.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script>
+        var oldMsg = '';//保存旧的留言信息
+        var canSend = false;//是否可以发送请求
+        var id = '';//被修改留言的id
+        // 修改第一步:将信息区域替换成文本域
+        function edit(i){
+            var $p = $(i).parent().prev().prev();
+            // 保存旧留言
+            oldMsg = $p.html();
+            $p.html('<textarea name="message" onblur="send(this)"></textarea>');
+            // 自动获取焦点
+            $p.find('textarea').focus();
+        }
+        // 修改第二步:发送请求
+        function send(i){
+            var val = $(i).val().trim();
+            if(val==''){
+                alert('数据不能为空');
+                // 将原来的数据重新填入
+                $(i).parent().html(oldMsg);
+                oldMsg = '';//重置全局变量
+                return ;
+            }
+            // 修改数据
+            // 取id
+            var id = $(i).parent().parent().find('a:contains("删除")').attr('onclick');
+            id = id.substring(id.indexOf("'")+1,id.lastIndexOf("'"));
+            // console.log(id);
+            $.ajax({
+                url:'/mess/edit',
+                data:{id:id,message:val},
+                method:'post',
+                success:function(result){
+                    if(result.status==1){
+                        alert(result.msg);
+                        return ;
+                    }
+                    // 修改成功,将文本框替换为新的内容
+                    $(i).parent().html(val.replace('\n','<br>'));
+                    oldMsg = '';//重置
+                    alert(result.msg);
+                }
+            })
+        }
+        // 删除
+        function del(id){
+            var f = confirm('是否要删除该留言？');
+            if(!f){
+                return ;
+            }
+            // 确认删除
+            $.ajax({
+                url:'/mess/delete?id='+id,
+                success:function(result){
+                    if(result.status==1){
+                        alert(result.msg);
+                        return ;
+                    }
+                    // 删除成功
+                    location.href = '/';
+                }
+            })
+        }
+    </script>
 </body>
 </html>
